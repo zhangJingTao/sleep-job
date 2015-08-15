@@ -9,11 +9,11 @@ println "*" * 100
 println "开始抓取Tieba"
 println "*" * 100
 
-def sql = "select start,end,id from tieba_card_schedule schedule where schedule.exe_date is null order by id asc limit 5"
+def sql = "select start,end,id from tieba_card_schedule schedule where schedule.exe_date is null order by id asc limit 6"
 
 jobExcutor = new JobExcutor(Config.threadSize, 0)
 
-new Sql(ds).eachRow(sql){ schedule ->
+new Sql(ds).eachRow(sql) { schedule ->
     def row = Utils.CloneResultSet(schedule)
     jobExcutor.run {
         def db = new Sql(ds)
@@ -21,7 +21,7 @@ new Sql(ds).eachRow(sql){ schedule ->
         def end = row.end as Long
         def id = row.id
         println("executing...start:${start},end:${end}")
-//        db.executeUpdate("update tieba_card_schedule set exe_date=SYS_DATE() wehre id="+id)
+        db.executeUpdate("update tieba_card_schedule set exe_date=NOW() where id="+id)
         def baseUrl = "http://tieba.baidu.com/p/"
         for (Long i = start; i < end; i++) {
             println("cur tieba_url:" + baseUrl + "${i}")
@@ -57,10 +57,11 @@ new Sql(ds).eachRow(sql){ schedule ->
                         author      : author,
                         url         : url,
                         status      : 200,
-                        reply_count : count,
+                        reply_count : count==""? 0:Integer.valueOf(count),
                         create_date : createDate,
                         date_created: new Date(),
-                        source      : source
+                        source      : source,
+                        version     : 0
                 ]
                 db.dataSet("tieba_card").add(card)
             } catch (Exception e) {
@@ -71,14 +72,20 @@ new Sql(ds).eachRow(sql){ schedule ->
                         author      : author,
                         url         : url,
                         status      : 404,
-                        reply_count : count,
+                        reply_count : count==""? 0:Integer.valueOf(count),
                         create_date : createDate,
                         date_created: new Date(),
-                        source      : source
+                        source      : source,
+                        version     : 0
                 ]
-                new Sql(ds).dataSet("tieba_card").add(card)
+                try {
+                    new Sql(ds).dataSet("tieba_card").add(card)
+                }catch (Exception ex){
+
+                }
                 continue
             }
         }
     }
 }
+jobExcutor.await()

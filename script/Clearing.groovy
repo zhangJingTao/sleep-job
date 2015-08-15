@@ -22,12 +22,11 @@ try {
 
 } catch (Exception e) {
     log.warn 'Job error', e
-} finally {
-    if (cpds) {
-        try {
-            cpds.close()
-        } catch (Exception e) {
-            log.warn("close ds error", e)
-        }
-    }
 }
+//if (cpds) {
+//    try {
+//        cpds.close()
+//    } catch (Exception e) {
+//        log.warn("close ds error", e)
+//    }
+//}

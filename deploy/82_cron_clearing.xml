@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <GroovyShell name="cron-task-clearing" class="com.myjpos.groovy.q2.GroovyTaskAdaptor" logger="Q2">
-    <property name="cron" value="0 0/1 * * * ?"/>
+    <property name="cron" value="0 10/31 * * * ?"/>
     <property name="script" value="Clearing.groovy" />
 </GroovyShell>
